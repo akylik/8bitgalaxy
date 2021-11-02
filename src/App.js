@@ -1,5 +1,5 @@
 import "./styles/8bitfont.css";
-import React from "react";
+import React, { useReducer, useEffect } from "react";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import {DndProvider} from "react-dnd";
 import {observer} from "mobx-react-lite";
@@ -7,14 +7,74 @@ import {observer} from "mobx-react-lite";
 import Demo from "./Demo";
 import GameView from "./components/ui/GameView";
 
+import axios from "axios";
+// import socket from "./socket";
+import socket from "./server/socket";
+import RoomView from "./components/ui/RoomView";
+import reducer from "./reducer/reducer";
+// import reducer from "./reducer";
+import GameViewFull from "./components/ui/GameViewFull";
+
+// import io from "socket.io-client";
+// const socket = io('http://localhost:8080/');
+
+
 const App = () => {
+  const [state, dispatch] = useReducer(reducer, {
+    isLogin: false,
+    roomId: null,
+    userName: null,
+    users: [],
+    FirstPlayer: null,
+    SecondPlayer: null,
+    isActiveToMove: false,
+  });
+
+  const onLogin = async (obj) => {
+    dispatch({
+      type: "IS_LOGIN",
+      payload: obj,
+    });
+    socket.emit("ROOM:LOGIN", obj);
+    const {data} = await axios.get(`/${obj.roomId}`);
+    setUsers(data.users);
+    setFirstUser(data.firstPlayer);
+  };
+
+  const setUsers = (users) => {
+    dispatch({
+      type: "SET_USERS",
+      payload: users,
+    });
+  };
+
+  const setFirstUser = (user) => {
+    dispatch({
+      type: "SET_FIRST_USER",
+      payload: user,
+    });
+  };
+
+  useEffect(() => {
+    // socket.on("ROOM:LOGED", setUsers);
+    socket.on("ROOM:SET_USERS", setUsers);
+    socket.on("ROOM:SET_FIRST_USER", setFirstUser);
+  }, []);
+
+  // console.log(state);
+
   const game = (new Demo()).game;
 
   return (
     <div className="App">
-      <DndProvider debugMode={true} backend={HTML5Backend}>
-        <GameView game={game}/>
-      </DndProvider>
+      {/* <DndProvider debugMode={true} backend={HTML5Backend}> */}
+        {/* {!state.isLogin ? <RoomView onLogin={onLogin}/> : <GameView game={game} state={state} />} */}
+        {/* <RoomView onLogin={onLogin}/> */}
+        {/* <GameView game={game}/> */}
+      {/* </DndProvider> */}
+
+      {!state.isLogin ? <RoomView onLogin={onLogin}/> : <GameViewFull game={game} state={state} />}
+
     </div>
   );
 };

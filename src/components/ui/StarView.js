@@ -22,7 +22,7 @@ const OverView = styled.div`
   }
 `;
 
-const StarView = ({star}) => {
+const StarView = ({star, state}) => {
   const [, m] = usePosition();
   const indent = star.y % 2 ? 0 : 7.75 * m;
   const [{isOver}, dropRef] = useDrop(() => ({

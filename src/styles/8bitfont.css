@@ -17,3 +17,10 @@ body {
     line-height: 52px;
     font-weight: 100;
 }
+
+.notDrag {
+  width: 195vw;
+  height: 638vh;
+  position: absolute;
+  z-index: 99999;
+}

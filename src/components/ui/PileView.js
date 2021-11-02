@@ -6,7 +6,7 @@ import CardView from "./CardView";
 import usePosition from "../../state/hooks/usePosition";
 import useHover from "../../state/hooks/useHover";
 
-function PileView({pile, y, x}) {
+function PileView({pile, y, x, state}) {
   const [p] = usePosition(y, x);
   const [hoverRef, isHover] = useHover();
   const [{isOver}, dropRef] = useDrop(() => ({
@@ -41,7 +41,7 @@ function PileView({pile, y, x}) {
             indentX = pile.direction.name === "TopToBottom" ? 0.8 : 0.2;
           }
           return (
-            <CardView key={idx} card={card} y={idx * indentY} x={idx * indentX}/>
+            <CardView key={idx} card={card} y={idx * indentY} x={idx * indentX} props={state}/>
           );
         })}
         {isOver && (

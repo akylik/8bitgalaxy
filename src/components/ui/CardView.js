@@ -1,11 +1,29 @@
-import React from "react";
+import React, { useReducer, useEffect } from "react";
 import {observer} from "mobx-react-lite";
 import cn from "classnames";
 import {useDrag} from "react-dnd";
 import SpecsView from "./SpecsView";
 import usePosition from "../../state/hooks/usePosition";
 
-const CardView = ({card, y, x}) => {
+import reducer from "../../reducer/reducer";
+import socket from "../../server/socket";
+
+
+
+const CardView = ({card, y, x, props}) => {
+  // console.log(props)
+  const [state, dispatch] = useReducer(reducer, {
+    // isLogin: false,
+    // roomId: props,
+    // userName: props?.userName,
+    // users: [],
+    // FirstPlayer: null,
+    // SecondPlayer: null,
+    isActiveToMove: props?.isActiveToMove,
+  });
+   
+  // console.log(state)
+
   const [p] = usePosition(y, x);
   const [{isDragging}, dragRef] = useDrag(() => ({
     type: "CARD",
@@ -31,10 +49,28 @@ const CardView = ({card, y, x}) => {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+
   const handleTurnOver = () => {
     card.turnOver();
+    setActivePlayer();
+    // socket.on("ROOM:SET_ACTIVE_USERS", setAcriveUsers);
   };
-  const cardClasses = cn(
+
+  const setActivePlayer = () => {
+    dispatch({
+      type: "SET_ACTIVE_PLAYER",
+      payload: false,
+    });
+  };
+
+  useEffect(() => {
+    socket.on("ROOM:SET_ACTIVE_USERS", setActivePlayer);
+
+    // socket.on("ROOM:LOGED", setUsers);
+    // socket.on("ROOM:SET_FIRST_USER", setFirstUser);
+  }, []);
+
+   const cardClasses = cn(
     "Card",
     card.visibility,
     card.Type ?? "Ship",
