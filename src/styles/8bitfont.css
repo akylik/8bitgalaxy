@@ -22,3 +22,10 @@ body {
    width: 198%;
    height: 3050px;
 }
+
+.notDrag {
+  width: 195vw;
+  height: 638vh;
+  position: absolute;
+  z-index: 99999;
+}

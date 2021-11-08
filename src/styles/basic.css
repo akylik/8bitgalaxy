@@ -3,6 +3,7 @@
 @import 'stars.css';
 @import 'specs.css';
 @import 'piles.css';
+@import 'room.css';
 
 .Human      { background-color: #ffb; }
 .AI         { background-color: #bff; }

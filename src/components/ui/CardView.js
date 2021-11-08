@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import cn from "classnames";
 import { useDrag } from "react-dnd";
@@ -7,7 +7,17 @@ import usePosition from "../../state/hooks/usePosition";
 import CardBoxView from "../CardBox/CardBoxView";
 import useCardBox from "../../state/hooks/useCardBox";
 
+import reducer from "../../reducer/reducer";
+import socket from "../../server/socket";
+
+
 const CardView = ({ card, y, x }) => {
+  //!!!!!!!
+  // const [state, dispatch] = useReducer(reducer, {
+  //   isActiveToMove: null,
+  // });
+  // console.log(state);
+
   const addCardBox = useCardBox();
   const [p] = usePosition(y, x);
   const [{ isDragging }, dragRef] = useDrag(() => ({
@@ -36,7 +46,23 @@ const CardView = ({ card, y, x }) => {
   }));
   const handleTurnOver = () => {
     card.turnOver();
+    // setActivePlayer();
   };
+
+  // const setActivePlayer = (users) => {
+  //   dispatch({
+  //     type: "SET_ACTIVE_PLAYER",
+  //     payload: users,
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   socket.on("ROOM:SET_ACTIVE_USERS", setActivePlayer);
+
+  //   // socket.on("ROOM:LOGED", setUsers);
+  //   // socket.on("ROOM:SET_FIRST_USER", setFirstUser);
+  // }, []);
+
   const cardClasses = cn(
     "Card",
     card.visibility,

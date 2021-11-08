@@ -1,20 +1,84 @@
 import "./styles/8bitfont.css";
-import React from "react";
+import React, { useReducer, useEffect } from "react";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import {DndProvider} from "react-dnd";
 import {observer} from "mobx-react-lite";
+import axios from "axios";
 
 import Demo from "./Demo";
 import GameView from "./components/ui/GameView";
+import socket from "./server/socket";
+import RoomView from "./components/ui/RoomView";
+import reducer from "./reducer/reducer";
+import GameViewFull from "./components/ui/GameViewFull";
 
 const App = () => {
+  const [state, dispatch] = useReducer(reducer, {
+    isLogin: false,
+    roomId: null,
+    userName: null,
+    users: [],
+    FirstPlayer: null,
+    SecondPlayer: null,
+    isActiveToMove: false,
+    activeUsers: null,
+  });
+
+  const onLogin = async (obj) => {
+    dispatch({
+      type: "IS_LOGIN",
+      payload: obj,
+    });
+    socket.emit("ROOM:LOGIN", obj);
+    const {data} = await axios.get(`/${obj.roomId}`);
+    setUsers(data.users);
+    setFirstUser(data.firstPlayer);
+    // setSecondUser(data.secondPlayer);
+    setUserActive(data.isUserActive);
+  };
+
+  const setUsers = (users) => {
+    dispatch({
+      type: "SET_USERS",
+      payload: users,
+    });
+  };
+
+  const setFirstUser = (user) => {
+    dispatch({
+      type: "SET_FIRST_USER",
+      payload: user,
+    });
+  };
+  // const setSecondUser = (user) => {
+  //   dispatch({
+  //     type: "SET_SECOND_USER",
+  //     payload: user,
+  //   });
+  // };
+  const setUserActive = (users) => {
+    dispatch({
+      type: "SET_USER_ACTIVE",
+      payload: users,
+    });
+  };
+
+  useEffect(() => {
+    socket.on("ROOM:SET_USERS", setUsers);
+    socket.on("ROOM:SET_FIRST_USER", setFirstUser);
+    // socket.on("ROOM:SET_SECOND_USER", setSecondUser);
+    socket.on("ROOM:SET_USER_ACTIVE", setUserActive);
+  }, []);
+
+    
   const game = (new Demo()).game;
 
   return (
-    <div className="App">
-      <DndProvider debugMode={true} backend={HTML5Backend}>
+    <div className="App" >
+      {/* <DndProvider debugMode={true} backend={HTML5Backend}>
         <GameView game={game}/>
-      </DndProvider>
+      </DndProvider> */}
+      {!state.isLogin ? <RoomView onLogin={onLogin}/> : <GameViewFull game={game} state={state} />}
     </div>
   );
 };
